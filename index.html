@@ -962,6 +962,101 @@ footer {
 footer a { color: var(--text2); text-decoration: none; }
 footer a:hover { color: var(--accent); }
 
+/* ---- POPUP ---- */
+#popup-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.7);
+  z-index: 999;
+  align-items: center;
+  justify-content: center;
+}
+
+#popup-box {
+  background: var(--navy2);
+  border: 1px solid var(--border2);
+  border-radius: 14px;
+  padding: 2.5rem;
+  max-width: 440px;
+  width: 90%;
+  position: relative;
+}
+
+#popup-close {
+  position: absolute;
+  top: 1rem; right: 1rem;
+  background: none;
+  border: none;
+  color: var(--text2);
+  font-size: 20px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+#popup-close:hover { color: var(--text1); }
+
+#popup-box .popup-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--accent);
+  letter-spacing: 0.1em;
+  margin-bottom: 0.75rem;
+}
+
+#popup-box h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text1);
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.01em;
+}
+
+#popup-box p {
+  font-size: 13px;
+  color: var(--text2);
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+
+#popup-box input {
+  width: 100%;
+  background: var(--navy);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  padding: 10px 14px;
+  color: var(--text1);
+  font-size: 13px;
+  font-family: var(--sans);
+  margin-bottom: 10px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+#popup-box input:focus { border-color: var(--accent); }
+
+#popup-box input::placeholder { color: var(--text3); }
+
+#popup-submit {
+  width: 100%;
+  background: var(--accent);
+  color: var(--navy);
+  font-weight: 600;
+  font-size: 14px;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: var(--sans);
+  transition: background 0.2s, transform 0.15s;
+}
+
+#popup-submit:hover {
+  background: #5a96ff;
+  transform: translateY(-1px);
+}
+
 /* ---- RESPONSIVE ---- */
 @media (max-width: 640px) {
   nav { padding: 0 1rem; }
@@ -1428,7 +1523,7 @@ footer a:hover { color: var(--accent); }
       </div>
     </div>
 
-    <!-- PROJECT 08 — NEW -->
+    <!-- PROJECT 08 -->
     <div class="project-card">
       <div class="project-header">
         <div>
@@ -1469,7 +1564,7 @@ footer a:hover { color: var(--accent); }
       </div>
     </div>
 
-    <!-- PROJECT 09 — NEW -->
+    <!-- PROJECT 09 -->
     <div class="project-card">
       <div class="project-header">
         <div>
@@ -1510,7 +1605,7 @@ footer a:hover { color: var(--accent); }
       </div>
     </div>
 
-    <!-- PROJECT 10 — NEW -->
+    <!-- PROJECT 10 -->
     <div class="project-card">
       <div class="project-header">
         <div>
@@ -1803,5 +1898,78 @@ footer a:hover { color: var(--accent); }
   <p>2026 Cory Schmaltz, AI Automation Engineer. Aurora, Colorado. Built by <a href="mailto:cory@rangeviewmarketing.com">Rangeview Marketing</a>.</p>
 </footer>
 
+<!-- PORTFOLIO FORM POPUP -->
+<div id="popup-overlay">
+  <div id="popup-box">
+    <button id="popup-close" onclick="document.getElementById('popup-overlay').style.display='none'">×</button>
+    <p class="popup-label">FREE AUDIT</p>
+    <h3>What could your business automate in 30 days?</h3>
+    <p>Cory sends a personal video audit within 24 hours. No pitch. No card.</p>
+    <input id="popup-name" type="text" placeholder="Your name">
+    <input id="popup-email" type="email" placeholder="Your email">
+    <input id="popup-biz" type="text" placeholder="What does your business do?">
+    <button id="popup-submit" onclick="submitPopup()">Get my free audit</button>
+  </div>
+</div>
+
+<script>
+  // Show popup after 30 seconds
+  setTimeout(function() {
+    document.getElementById('popup-overlay').style.display = 'flex';
+  }, 30000);
+
+  function submitPopup() {
+    var name = document.getElementById('popup-name').value.trim();
+    var email = document.getElementById('popup-email').value.trim();
+    var biz = document.getElementById('popup-biz').value.trim();
+
+    if (!email) {
+      alert('Please enter your email.');
+      return;
+    }
+
+    var btn = document.getElementById('popup-submit');
+    btn.textContent = 'Sending...';
+    btn.disabled = true;
+
+    fetch('https://n8n.rangeviewmarketing.com/webhook/rangeview-leads', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: name,
+        email: email,
+        business: biz,
+        source: 'Portfolio Form',
+        business_type: biz,
+        location: 'unknown',
+        website: '',
+        phone: '',
+        source_url: 'https://cschmaltz.github.io/portfolio',
+        what_they_said: biz,
+        pain_point: 'general automation',
+        offer: 'Strategy Session',
+        ghl_audit_score: '',
+        ghl_issues: '',
+        date: new Date().toISOString()
+      })
+    })
+    .then(function() {
+      document.getElementById('popup-overlay').style.display = 'none';
+      alert('Done. Cory will send your audit within 24 hours.');
+    })
+    .catch(function() {
+      btn.textContent = 'Get my free audit';
+      btn.disabled = false;
+      alert('Something went wrong. Please try again or email cory@rangeviewmarketing.com directly.');
+    });
+  }
+</script>
+
 </body>
 </html>
+
+
+
+
+
+Claude is AI and can make mistakes. 
